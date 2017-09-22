@@ -43,46 +43,79 @@
 		return $items;
 	}
 
-	/*
-	 * Get states by related Country Code
-	 * @return JSON Object
-	 */
+    /**
+     * Create an array with states based on a Country Code.
+     *
+     * @param bool|string $country_code
+     *
+     * @return array
+     */
+    function get_states( $country_code = false ) {
+        if ( ! $country_code ) {
+            $country_code = $country_code;
+        }
 
-	function get_states_call( $country_code = false ) {
+        global $wpdb;
 
-		if ( ! $country_code ) {
-			$country_code = $_POST['country_code'];
-		}
+        $items = array();
 
-		global $wpdb;
-		$db = $wpdb->get_results( "
-        SELECT * FROM " . $wpdb->prefix . "cities
-        WHERE country_code = '" . $country_code . "'
-        group by state_code
-        order by states ASC
-    " );
+        $sql = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "cities
+            WHERE country_code = '%s'
+            group by state_code
+            order by states ASC",  $country_code );
 
-		$items                    = array();
-		$items[0]['country_code'] = "";
-		$items[0]['state_code']   = "";
-		$items[0]['states']       = __( 'Select provence/state', 'acf-city-selector' );
+        $db = $wpdb->get_results( $sql );
 
-		$i = 1;
-		foreach ( $db as $data ) {
-			$items[ $i ]['country_code'] = $data->country_code;
-			$items[ $i ]['state_code']   = $data->state_code;
-			if ( $data->states != 'N/A' ) {
-				$items[ $i ]['states'] = $data->states;
-			} else {
-				$items[ $i ]['states'] = $data->country;
-			}
-			$i ++;
-		}
-		// return $items;
-		ob_clean();
-		echo json_encode( $items );
-		die();
-	}
+        foreach ( $db as $data ) {
+            $items[ $data->state_code ]   = $data->states;
+        }
+        return $items;
+    }
+
+    /*
+     * Get states by related Country Code
+     *
+     * @param bool|string $country_code
+     *
+     * @return JSON Object
+     */
+
+    function get_states_call( $country_code = false ) {
+
+        if ( ! $country_code ) {
+            $country_code = $_POST['country_code'];
+        }
+
+        global $wpdb;
+
+        $sql = $wpdb->prepare( "SELECT * FROM " . $wpdb->prefix . "cities
+            WHERE country_code = '%s'
+            group by state_code
+            order by states ASC",  $country_code );
+
+        $db = $wpdb->get_results( $sql );
+
+        $items                    = array();
+        $items[0]['country_code'] = "";
+        $items[0]['state_code']   = "";
+        $items[0]['states']       = __( 'Select provence/state', 'acf-city-selector' );
+
+        $i = 1;
+        foreach ( $db as $data ) {
+            $items[ $i ]['country_code'] = $data->country_code;
+            $items[ $i ]['state_code']   = $data->state_code;
+            if ( $data->states != 'N/A' ) {
+                $items[ $i ]['states'] = $data->states;
+            } else {
+                $items[ $i ]['states'] = $data->country;
+            }
+            $i ++;
+        }
+        // return $items;
+        ob_clean();
+        echo json_encode( $items );
+        die();
+    }
 
 	/*
 	 * Get cities by related State Code or Country Code (IF State code == "00" or States == 'N/A')
