@@ -17,6 +17,18 @@
 		exit;
 	}
 
+	if ( ! class_exists( 'acf' ) ) {
+		add_action( 'admin_notices', function() {
+			echo sprintf(
+				'<div class="error"><p>%s not activated. Make sure you activate the plugin in <a href="%s">%s</a></p></div>',
+				'Advanced Custom Fields',
+				esc_url( admin_url( 'plugins.php?s=advanced-custom-fields-pro' ) ),
+				esc_url( admin_url( 'plugins.php') )
+			);
+		});
+		return;
+	}
+
 	// check if class already exists
 	if ( ! class_exists( 'acf_plugin_city_selector' ) ) :
 
@@ -66,9 +78,6 @@
 
 				// always load
 				$this->acfcs_load_admin_pages();
-				// $this->acfcs_load_admin_page();
-				// $this->acfcs_load_settings_page();
-				// $this->acfcs_load_pro_page();
 				$this->acfcs_admin_menu();
 
 				include( 'inc/help-tabs.php' );
@@ -108,27 +117,6 @@
 			public function acfcs_load_admin_pages() {
 				include( 'inc/admin-page.php' );
 				include( 'inc/settings-page.php' );
-				include( 'inc/pro-page.php' );
-			}
-
-			/*
-			 * Load admin page
-			 */
-			public function acfcs_load_admin_page() {
-				include( 'inc/admin-page.php' );
-			}
-
-			/*
-			 * Load settings page
-			 */
-			public function acfcs_load_settings_page() {
-				include( 'inc/settings-page.php' );
-			}
-
-			/*
-			 * Load pro page
-			 */
-			public function acfcs_load_pro_page() {
 				include( 'inc/pro-page.php' );
 			}
 
